@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - SenseTech</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", -apple-system, sans-serif; }
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-card {
+  display: flex;
+  width: 860px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+}
+
+.brand {
+  width: 40%;
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.brand-name {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #f7ce46;
+}
+
+.brand-line {
+  width: 40px;
+  height: 3px;
+  background: #6366f1;
+  border-radius: 2px;
+}
+
+.brand-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+}
+
+.form-area {
+  flex: 1;
+  padding: 52px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-area h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.form-area .subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 6px 0 32px;
+}
+
+.field { margin-bottom: 18px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 7px;
+}
+
+.field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+  transition: 0.2s;
+}
+
+.field input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 8px;
+}
+
+.btn-login:hover {
+  background: #4f46e5;
+  box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+  transform: translateY(-1px);
+}
+
+.recover {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.recover a { color: #6366f1; text-decoration: none; font-weight: 600; }
+.recover a:hover { text-decoration: underline; }
+
+@media (max-width: 580px) {
+  .brand { display: none; }
+  .form-area { padding: 36px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="brand">
+    <div style="background:white;border-radius:16px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;">
+      <img src="LOGO_SENSETECH.png" alt="SenseTech" style="width:120px;object-fit:contain;">
+    </div>
+    <div class="brand-line"></div>
+    <div class="brand-desc">Análise e Desenvolvimento<br>de Sistemas</div>
+  </div>
+
+  <div class="form-area">
+    <h2>Bem-vindo de volta</h2>
+    <p class="subtitle">Faça login para acessar o painel</p>
+
+    <form>
+      <div class="field">
+        <label>Usuário</label>
+        <input type="email" placeholder="seu@email.com" required>
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" placeholder="••••••••" required>
+      </div>
+      <button type="button" class="btn-login" onclick="window.location.href='home.html'">Entrar</button>
+    </form>
+
+    <div class="recover">Esqueceu a senha? <a href="#">Recuperar acesso</a></div>
+  </div>
+</div>
+
+</body>
+</html>

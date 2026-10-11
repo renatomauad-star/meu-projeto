@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatórios - SenseTech</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", -apple-system, sans-serif; }
+
+body { display: flex; min-height: 100vh; background: #f1f5f9; color: #0f172a; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  position: fixed;
+  top: 0; left: 0;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #f7ce46;
+  padding: 0 24px 40px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+  flex: 1;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.5);
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.menu a:hover {
+  background: rgba(99,102,241,0.15);
+  color: #ffffff;
+}
+
+.menu a.active {
+  background: rgba(99,102,241,0.2);
+  color: #a5b4fc;
+  border-left-color: #6366f1;
+}
+
+.sidebar-footer { padding: 24px; }
+
+.btn-sair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  transition: 0.2s;
+}
+.btn-sair:hover { color: rgba(255,255,255,0.65); }
+
+/* MAIN */
+.main {
+  flex: 1;
+  margin-left: 240px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* TOP BAR */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-left h1 { font-size: 26px; font-weight: 700; color: #0f172a; }
+.top-left p  { font-size: 13px; color: #64748b; margin-top: 3px; }
+
+.top-right { display: flex; align-items: center; gap: 10px; }
+
+.date-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.admin-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* FILTROS */
+.filtros-card {
+  background: white;
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.campo { display: flex; flex-direction: column; gap: 7px; }
+
+.campo label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input-date,
+.select-box {
+  height: 40px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: white;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-date:focus,
+.select-box:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.10);
+}
+
+.btn-relatorio,
+.btn-pdf {
+  height: 40px;
+  border: none;
+  color: white;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.btn-relatorio {
+  background: #6366f1;
+}
+.btn-relatorio:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+  transform: translateY(-1px);
+}
+
+.btn-pdf {
+  background: #ef4444;
+}
+.btn-pdf:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 14px rgba(239,68,68,0.3);
+  transform: translateY(-1px);
+}
+
+/* GRÁFICOS */
+.graficos-area {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.grafico-card {
+  background: white;
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.grafico-card h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.grafico-card canvas {
+  flex: 1;
+  width: 100% !important;
+}
+
+/* RESPONSIVO */
+@media (max-width: 1100px) {
+  .filtros-card { grid-template-columns: 1fr 1fr; }
+  .graficos-area { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .main { margin-left: 0; padding: 24px; }
+  .sidebar { display: none; }
+  .filtros-card { grid-template-columns: 1fr; }
+  .top { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">
+    <div style="background:white;border-radius:12px;padding:8px 12px;display:inline-flex;align-items:center;justify-content:center;">
+      <img src="LOGO_SENSETECH.png" alt="SenseTech" style="width:120px;object-fit:contain;">
+    </div>
+  </div>
+  <div class="menu">
+    <a href="home.html"> Dashboard</a>
+    <a href="relatorios.html" class="active"> Relatórios</a>
+    <a href="quem-somos.html"> Quem Somos</a>
+  </div>
+  <div class="sidebar-footer">
+    <a href="Index.html" class="btn-sair">↩ Sair</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="top">
+    <div class="top-left">
+      <h1>Relatórios</h1>
+      <p>Visualize e exporte dados detalhados do fluxo de pessoas.</p>
+    </div>
+    <div class="top-right">
+      <div class="date-box"> Hoje, 22 de maio de 2026</div>
+      <div class="admin-box">👤 Administrador ▾</div>
+    </div>
+  </div>
+
+  <div class="filtros-card">
+    <div class="campo">
+      <label>Data inicial</label>
+      <input type="date" id="dataInicial" class="input-date" value="2025-05-01">
+    </div>
+    <div class="campo">
+      <label>Data final</label>
+      <input type="date" id="dataFinal" class="input-date" value="2025-05-25">
+    </div>
+    <div class="campo">
+      <label>Período rápido</label>
+      <select id="periodoRapido" class="select-box">
+        <option>Hoje</option>
+        <option>Últimos 7 dias</option>
+        <option>Últimos 30 dias</option>
+        <option selected>Personalizado</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Loja</label>
+      <select id="filtroLoja" class="select-box">
+        <option value="todas">Todas as lojas</option>
+        <option value="vilaMariana">Kopenhagen Vila Mariana</option>
+        <option value="ipiranga">Kopenhagen Ipiranga</option>
+        <option value="itaquera">Kopenhagen Shopping Itaquera</option>
+      </select>
+    </div>
+    <button class="btn-relatorio" onclick="gerarRelatorio()">📈 Gerar relatório</button>
+    <button class="btn-pdf" onclick="gerarPDF()">📄 Gerar PDF</button>
+  </div>
+
+  <div class="graficos-area">
+    <div class="grafico-card">
+      <h3>Fluxo de pessoas por horário</h3>
+      <canvas id="graficoHorario"></canvas>
+    </div>
+    <div class="grafico-card">
+      <h3>Clientes por dia da semana</h3>
+      <canvas id="graficoBarras"></canvas>
+    </div>
+    <div class="grafico-card">
+      <h3>Distribuição por loja</h3>
+      <canvas id="graficoPizza"></canvas>
+    </div>
+    <div class="grafico-card">
+      <h3>Tipo de entrada</h3>
+      <canvas id="graficoDonut"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(226,232,240,0.8)';
+
+function gerarDadosAleatorios(quantidade, minimo, maximo){
+  let dados = [];
+  for(let i = 0; i < quantidade; i++){
+    dados.push(Math.floor(Math.random() * (maximo - minimo + 1)) + minimo);
+  }
+  return dados;
+}
+
+function obterMultiplicadorLoja(loja){
+  if(loja === "vilaMariana") return 0.8;
+  if(loja === "ipiranga") return 0.6;
+  if(loja === "itaquera") return 1.2;
+  return 1;
+}
+
+function aplicarMultiplicador(dados, multiplicador){
+  return dados.map(valor => Math.round(valor * multiplicador));
+}
+
+function nomeLoja(loja){
+  if(loja === "vilaMariana") return "Kopenhagen Vila Mariana";
+  if(loja === "ipiranga") return "Kopenhagen Ipiranga";
+  if(loja === "itaquera") return "Kopenhagen Shopping Itaquera";
+  return "Todas as lojas";
+}
+
+function formatarData(data){
+  const partes = data.split("-");
+  return partes[2] + "/" + partes[1] + "/" + partes[0];
+}
+
+function maiorValor(labels, dados){
+  let maior = Math.max(...dados);
+  let indice = dados.indexOf(maior);
+  return { label: labels[indice], valor: maior };
+}
+
+const graficoHorario = new Chart(document.getElementById("graficoHorario"), {
+  type: "line",
+  data: {
+    labels: ["08h","10h","12h","14h","16h","18h","20h"],
+    datasets: [{
+      label: "Fluxo de pessoas",
+      data: [5,14,35,22,18,29,21],
+      borderColor: "#6366f1",
+      backgroundColor: "rgba(99,102,241,0.12)",
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2.5,
+      pointBackgroundColor: "#6366f1",
+      pointRadius: 4,
+      pointHoverRadius: 7
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
+const graficoBarras = new Chart(document.getElementById("graficoBarras"), {
+  type: "bar",
+  data: {
+    labels: ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],
+    datasets: [{
+      label: "Clientes",
+      data: [89,71,98,116,139,144,94],
+      backgroundColor: "#6366f1",
+      borderRadius: 6
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
+const graficoPizza = new Chart(document.getElementById("graficoPizza"), {
+  type: "pie",
+  data: {
+    labels: ["Vila Mariana","Ipiranga","Itaquera","Outros"],
+    datasets: [{
+      label: "Distribuição por loja",
+      data: [35,30,25,10],
+      backgroundColor: ["#6366f1","#22c55e","#f59e0b","#94a3b8"]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
+const graficoDonut = new Chart(document.getElementById("graficoDonut"), {
+  type: "doughnut",
+  data: {
+    labels: ["Visitantes","Funcionários","Fornecedores","Outros"],
+    datasets: [{
+      label: "Tipo de entrada",
+      data: [1200,260,90,50],
+      backgroundColor: ["#6366f1","#0ea5e9","#f59e0b","#94a3b8"]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+
+function gerarRelatorio(){
+  const loja = document.getElementById("filtroLoja").value;
+  const multiplicador = obterMultiplicadorLoja(loja);
+
+  const dadosHorario = aplicarMultiplicador(gerarDadosAleatorios(7, 30, 250), multiplicador);
+  const dadosSemana  = aplicarMultiplicador(gerarDadosAleatorios(7, 250, 1300), multiplicador);
+  const dadosPizza   = gerarDadosAleatorios(4, 10, 70);
+  const dadosDonut   = aplicarMultiplicador(gerarDadosAleatorios(4, 40, 1200), multiplicador);
+
+  graficoHorario.data.datasets[0].data = dadosHorario;
+  graficoBarras.data.datasets[0].data  = dadosSemana;
+  graficoPizza.data.datasets[0].data   = dadosPizza;
+  graficoDonut.data.datasets[0].data   = dadosDonut;
+
+  const labels = { vilaMariana: "Vila Mariana", ipiranga: "Ipiranga", itaquera: "Itaquera" };
+  const suffix = labels[loja] ? " - " + labels[loja] : "";
+  graficoHorario.data.datasets[0].label = "Fluxo de pessoas" + suffix;
+  graficoBarras.data.datasets[0].label  = "Clientes" + suffix;
+
+  graficoHorario.update();
+  graficoBarras.update();
+  graficoPizza.update();
+  graficoDonut.update();
+}
+
+function gerarPDF(){
+  const { jsPDF } = window.jspdf;
+
+  const dataInicial   = document.getElementById("dataInicial").value;
+  const dataFinal     = document.getElementById("dataFinal").value;
+  const loja          = document.getElementById("filtroLoja").value;
+  const periodoRapido = document.getElementById("periodoRapido").value;
+  const nomeDaLoja    = nomeLoja(loja);
+
+  const labelsHorario = graficoHorario.data.labels;
+  const dadosHorario  = graficoHorario.data.datasets[0].data;
+  const labelsSemana  = graficoBarras.data.labels;
+  const dadosSemana   = graficoBarras.data.datasets[0].data;
+  const labelsPizza   = graficoPizza.data.labels;
+  const dadosPizza    = graficoPizza.data.datasets[0].data;
+  const labelsDonut   = graficoDonut.data.labels;
+  const dadosDonut    = graficoDonut.data.datasets[0].data;
+
+  const picoHorario            = maiorValor(labelsHorario, dadosHorario);
+  const diaMaisMovimentado     = maiorValor(labelsSemana, dadosSemana);
+  const lojaMaiorDistribuicao  = maiorValor(labelsPizza, dadosPizza);
+  const tipoEntradaMaior       = maiorValor(labelsDonut, dadosDonut);
+
+  const totalClientesSemana = dadosSemana.reduce((t, v) => t + v, 0);
+  const totalFluxoHorario   = dadosHorario.reduce((t, v) => t + v, 0);
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  pdf.setFillColor(15, 23, 42);
+  pdf.rect(0, 0, 210, 30, "F");
+  pdf.setTextColor(247, 206, 70);
+  pdf.setFontSize(20);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("RELATÓRIO SENSETECH", 105, 18, { align: "center" });
+
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "normal");
+
+  let y = 42;
+
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Resumo do relatório", 15, y);
+  y += 8;
+  pdf.setFont("helvetica", "normal");
+  pdf.text("Data inicial: "      + formatarData(dataInicial), 15, y); y += 7;
+  pdf.text("Data final: "        + formatarData(dataFinal),   15, y); y += 7;
+  pdf.text("Período rápido: "    + periodoRapido,             15, y); y += 7;
+  pdf.text("Loja selecionada: "  + nomeDaLoja,               15, y); y += 12;
+
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Análise automática", 15, y);
+  y += 8;
+  pdf.setFont("helvetica", "normal");
+
+  const textoAnalise = [
+    "Entre " + formatarData(dataInicial) + " e " + formatarData(dataFinal) + ", a loja analisada foi " + nomeDaLoja + ".",
+    "O fluxo total por horário foi de " + totalFluxoHorario + " pessoas.",
+    "O horário com maior movimento foi " + picoHorario.label + ", com " + picoHorario.valor + " clientes.",
+    "O dia mais movimentado foi " + diaMaisMovimentado.label + ", com " + diaMaisMovimentado.valor + " clientes.",
+    "A maior distribuição por loja foi " + lojaMaiorDistribuicao.label + ", com índice de " + lojaMaiorDistribuicao.valor + ".",
+    "O principal tipo de entrada foi " + tipoEntradaMaior.label + ", com " + tipoEntradaMaior.valor + " registros.",
+    "O total de clientes no período semanal foi de " + totalClientesSemana + " clientes."
+  ];
+
+  textoAnalise.forEach(function(linha){
+    const textoQuebrado = pdf.splitTextToSize(linha, 180);
+    pdf.text(textoQuebrado, 15, y);
+    y += textoQuebrado.length * 6;
+  });
+
+  y += 5;
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Dados por horário", 15, y);
+  y += 7;
+  pdf.setFont("helvetica", "normal");
+  labelsHorario.forEach(function(label, index){
+    pdf.text(label + ": " + dadosHorario[index] + " clientes", 15, y);
+    y += 6;
+  });
+
+  y += 5;
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Clientes por dia da semana", 15, y);
+  y += 7;
+  pdf.setFont("helvetica", "normal");
+  labelsSemana.forEach(function(label, index){
+    pdf.text(label + ": " + dadosSemana[index] + " clientes", 15, y);
+    y += 6;
+  });
+
+  pdf.addPage();
+
+  pdf.setFillColor(15, 23, 42);
+  pdf.rect(0, 0, 210, 20, "F");
+  pdf.setTextColor(247, 206, 70);
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("GRÁFICOS DO RELATÓRIO", 105, 13, { align: "center" });
+  pdf.setTextColor(0, 0, 0);
+
+  const imgHorario = document.getElementById("graficoHorario").toDataURL("image/png", 1.0);
+  const imgBarras  = document.getElementById("graficoBarras").toDataURL("image/png", 1.0);
+  const imgPizza   = document.getElementById("graficoPizza").toDataURL("image/png", 1.0);
+  const imgDonut   = document.getElementById("graficoDonut").toDataURL("image/png", 1.0);
+
+  pdf.addImage(imgHorario, "PNG", 15,  30, 180, 65);
+  pdf.addImage(imgBarras,  "PNG", 15, 105, 180, 65);
+  pdf.addImage(imgPizza,   "PNG", 15, 180,  85, 75);
+  pdf.addImage(imgDonut,   "PNG",110, 180,  85, 75);
+
+  pdf.save("relatorio-sensetech.pdf");
+}
+</script>
+
+</body>
+</html>
